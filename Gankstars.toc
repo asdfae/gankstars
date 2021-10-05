@@ -1,0 +1,11 @@
+## Interface: 90100
+## Title: Gankstars
+## Author: asdfae
+## Version: 0.1
+## SavedVariables: BunniesDB
+## SavedVariables: GankstarsDB
+## SavedVariablesPerCharacter: GankstarsCharacterDB
+
+GankstarsFrame.lua
+main.lua
+MiniMapIcon.lua
