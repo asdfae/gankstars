@@ -24,10 +24,15 @@ end
 function Gankstars:SaveStats()
   print("Save")
   GankstarsCharacterDB = { }
-  GankstarsCharacterDB["AverageItemLevel"] = 1
+  GankstarsCharacterDB["CharacterName"] = UnitName("player");
+  GankstarsCharacterDB["AverageItemLevel"] = Gankstars:GetAverageItemLevel()
+  print(GankstarsCharacterDB["AverageItemLevel"])
+  print(GankstarsCharacterDB["CharacterName"])
 end
 
 function Gankstars:GetAverageItemLevel()
+  avgItemLevel, avgItemLevelEquipped, avgItemLevelPvp = GetAverageItemLevel()
+  return avgItemLevel
 end
 
 function Gankstars:ToggleDebug()
@@ -57,6 +62,8 @@ function Gankstars:deconstruct()
 end
 
 function Gankstars:SaveConfig()
+  print("Saving config.")
   GankstarsDB = {}
   GankstarsDB["debug"] = Gankstars.debug
+  GankstarsDB["wiioa"] = "asdf"
 end

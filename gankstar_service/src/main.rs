@@ -50,7 +50,7 @@ fn watch() -> notify::Result<()> {
                   let path = Path::new(&event);
                   let filename = path.file_stem().unwrap();
                   if filename == "Gankstars" {
-                    handleEvent(path);
+                    handle_event(path);
                   }
                 },
                 notify::DebouncedEvent::Chmod(_) => {},
@@ -58,7 +58,14 @@ fn watch() -> notify::Result<()> {
                 notify::DebouncedEvent::Rename(_, _) => {}
                 notify::DebouncedEvent::Rescan => {}
                 notify::DebouncedEvent::Error(_, _) => {},
-                notify::DebouncedEvent::Create(_) => {}
+                notify::DebouncedEvent::Create(event) => {
+                  println!("Got create event: {:?}", event);
+                  let path = Path::new(&event);
+                  let filename = path.file_stem().unwrap();
+                  if filename == "Gankstars" {
+                    handle_event(path);
+                  }
+                }
               }
            },
            Err(e) => println!("watch error: {:?}", e),
@@ -67,13 +74,16 @@ fn watch() -> notify::Result<()> {
     }
 }
 
-fn handleEvent(path: &Path) {
+fn handle_event(path: &Path) {
   println!("Should handle event: {:?}", path);
   let data = fs::read_to_string(path).expect("Unable to read file");
 
   let client = reqwest::blocking::Client::new();
-  let res = client.post("https://ganksta.rs/api")
-      .body(data)
+
+  let params = [("auth_token", "3272a63c-ae10-4170-9453-6b15b1b7aee5"), ("body", &data)];
+  //TODO: add auth token from file as params
+  let res = client.post("https://ganksta.rs/api/receive")
+      .form(&params)
       .send();
 
   println!("response: {:?}", res);
