@@ -2,7 +2,6 @@
 ## Title: Gankstars
 ## Author: asdfae
 ## Version: 0.1
-## SavedVariables: BunniesDB
 ## SavedVariables: GankstarsDB
 ## SavedVariablesPerCharacter: GankstarsCharacterDB
 

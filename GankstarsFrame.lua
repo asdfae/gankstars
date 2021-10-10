@@ -1,6 +1,6 @@
 local GankstarsFrame = CreateFrame("Frame", "GankstarsFrame", UIParent, "BasicFrameTemplateWithInset");
 
--- GankstarsFrame:Hide();
+GankstarsFrame:Hide();
 GankstarsFrame:SetSize(400, 400);
 GankstarsFrame:SetPoint("TOPLEFT", UIParent, "CENTER");
 GankstarsFrame:SetMovable(true);
@@ -40,31 +40,9 @@ end)
 
 GankstarsFrame:RegisterEvent('ADDON_LOADED')
 
-
-
-mybutton = CreateFrame("Button","saveButton", GankstarsFrame, "UIPanelButtonTemplate")
-mybutton:SetPoint("BOTTOMLEFT", 10, 10)
-mybutton:SetWidth(80)
-mybutton:SetHeight(22)
-mybutton:SetText("Test")
-mybutton:SetScript("OnClick", function(self, arg1) 
-  Gankstars:SaveStats();
-end)
-
-mybutton = CreateFrame("Button","debugButton", GankstarsFrame, "UIPanelButtonTemplate")
-mybutton:SetPoint("BOTTOMLEFT", 100, 10)
-mybutton:SetWidth(100)
-mybutton:SetHeight(22)
-mybutton:SetText("Debug Mode")
-mybutton:SetScript("OnClick", function(self, arg1) 
-  Gankstars:ToggleDebug();
-end)
-
-mybutton = CreateFrame("Button","forceSaveButton", GankstarsFrame, "UIPanelButtonTemplate")
-mybutton:SetPoint("BOTTOMLEFT", 210, 10)
-mybutton:SetWidth(80)
-mybutton:SetHeight(22)
-mybutton:SetText("Force Save")
-mybutton:SetScript("OnClick", function(self, arg1) 
-  Gankstars:SaveConfig();
-end)
+GankstarsFrame.tokenInput = CreateFrame("EditBox", "AuthToken", GankstarsFrame, "InputBoxTemplate")
+GankstarsFrame.tokenInput :SetFrameStrata("DIALOG")
+GankstarsFrame.tokenInput :SetSize(300,300)
+GankstarsFrame.tokenInput :SetAutoFocus(false)
+GankstarsFrame.tokenInput :SetText("")
+GankstarsFrame.tokenInput :SetPoint("TOPLEFT", 30, -30)

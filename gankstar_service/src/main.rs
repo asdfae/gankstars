@@ -72,8 +72,12 @@ fn watch() -> notify::Result<()> {
 }
 
 fn get_token(data: &String) -> String {
-  let pattern = r#"["addon_token"] = "#;
+  let pattern = r#"["AddonToken"] = "#;
   let start_index = data.find(pattern); 
+  if start_index == None {
+    return "".to_string();
+  }
+
   let uuid_size = 39;
   let mut addon_token: String = data.chars().skip(start_index.unwrap() + pattern.chars().count()).take(uuid_size).collect();
   addon_token = addon_token.replace(&['"', '\\', ','][..], "");
@@ -86,15 +90,15 @@ fn handle_event(path: &Path) {
   let data = fs::read_to_string(path).expect("Unable to read file");
   let token = get_token(&data);
   let client = reqwest::blocking::Client::new();
+  if token != "" {
+    let params = [("auth_token", &token), ("body", &data)];
+    let res = client.post("http://127.0.0.1:3000/api/receive")
+        .form(&params)
+        .send();
 
-  // 3272a63c-ae10-4170-9453-6b15b1b7aee5 <- production
-  // 2f817e70-8a4b-4d5e-9138-9fa87099d18b <- dev
-  let params = [("auth_token", &token), ("body", &data)];
-  let res = client.post("http://127.0.0.1:3000/api/receive")
-      .form(&params)
-      .send();
+    println!("response: {:?}", res);
+  }
 
-  println!("response: {:?}", res);
 }
 
 fn main() {
