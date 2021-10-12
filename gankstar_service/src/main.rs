@@ -3,22 +3,22 @@ extern crate notify;
 use notify::{RecommendedWatcher, Watcher, RecursiveMode};
 use std::sync::mpsc::channel;
 use std::time::Duration;
-use std::env;
 use std::path::Path;
 use std::fs;
+use wfd::{DialogParams, FOS_PICKFOLDERS};
 
 fn watch() -> notify::Result<()> {
 
-    // TODO: In production this should be working dir, find a way to use this in dev and production.
-    let mut working_dir = env::current_exe()?;
-    //REALLY??? while not __retail__?
-    working_dir.pop();
-    working_dir.pop();
-    working_dir.pop();
-    working_dir.pop();
-    working_dir.pop();
-    working_dir.pop();
-    working_dir.pop();
+    //TODO: save chosen path for future starts
+    let params = DialogParams {
+        options: FOS_PICKFOLDERS,
+        .. Default::default()
+    };
+
+    let dialog_result = wfd::open_dialog(params);
+    let mut working_dir = dialog_result.unwrap().selected_file_path;
+    
+    working_dir.push("_retail_");
     working_dir.push("WTF");
     working_dir.push("Account");
 
@@ -92,7 +92,8 @@ fn handle_event(path: &Path) {
   let client = reqwest::blocking::Client::new();
   if token != "" {
     let params = [("auth_token", &token), ("body", &data)];
-    let res = client.post("http://127.0.0.1:3000/api/receive")
+    //let res = client.post("http://127.0.0.1:3000/api/receive")
+    let res = client.post("https://ganksta.rs/api/receive")
         .form(&params)
         .send();
 
