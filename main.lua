@@ -13,6 +13,14 @@ function events:PLAYER_LOGOUT(...)
   Gankstars:deconstruct()
 end
 
+function events:PLAYER_DEAD()
+  Gankstars.DeathCount = Gankstars.DeathCount + 1
+end
+
+function events:PLAYER_AVG_ITEM_LEVEL_UPDATE()
+  Gankstars:UpdateAverageItemLevel()
+end
+
 GankstarsFrame:SetScript("OnEvent", function(self, event, ...)
  events[event](self, ...); -- call one of the functions above
 end);
@@ -32,6 +40,10 @@ end
 function Gankstars:GetAverageItemLevel()
   avgItemLevel, avgItemLevelEquipped, avgItemLevelPvp = GetAverageItemLevel()
   return avgItemLevel
+end
+
+function Gankstars:UpdateAverageItemLevel()
+  Gankstars.AverageItemLevel = Gankstars:GetAverageItemLevel()
 end
 
 function Gankstars:ToggleDebug()
@@ -57,12 +69,23 @@ function Gankstars:Initialize()
   if GankstarsCharacterDB["AverageItemLevel"] == nil or GankstarsCharacterDB["AverageItemLevel"] == 0 then
     GankstarsCharacterDB["AverageItemLevel"] = Gankstars:GetAverageItemLevel()
   end
+
+  if GankstarsCharacterDB["DeathCount"] == nil then
+    GankstarsCharacterDB["DeathCount"] = 0
+  end
   
+  -- GankstarsDB values
   Gankstars.Debug = GankstarsDB["Debug"]
   Gankstars.AddonToken = GankstarsDB["AddonToken"]
+  
+  -- GankstarsCharacterDb values
   Gankstars.AverageItemLevel = GankstarsCharacterDB["AverageItemLevel"]
+  Gankstars.DeathCount = GankstarsCharacterDB["DeathCount"]
 
-  GankstarsFrame.tokenInput:SetText(Gankstars.AddonToken)
+  GankstarsFrame.DebugValue:SetText(tostring(Gankstars.Debug))
+  GankstarsFrame.TokenInput:SetText(Gankstars.AddonToken)
+
+  print("deathcount" .. Gankstars.DeathCount)
 
   if Gankstars.Debug then
     GankstarsFrame:Show()
@@ -76,7 +99,7 @@ end
 
 function Gankstars:SaveConfig()
   print("Saving config.")
-  Gankstars.AddonToken = GankstarsFrame.tokenInput:GetText()
+  Gankstars.AddonToken = GankstarsFrame.TokenInput:GetText()
 
   GankstarsDB = {}
   GankstarsDB["Debug"] = Gankstars.Debug
@@ -90,4 +113,5 @@ function Gankstars:SaveStats()
   GankstarsCharacterDB["CharacterName"] = UnitName("player");
   GankstarsCharacterDB["AverageItemLevel"] = Gankstars.AverageItemLevel
   GankstarsCharacterDB["AddonToken"] = Gankstars.AddonToken
+  GankstarsCharacterDB["DeathCount"] = Gankstars.DeathCount
 end
