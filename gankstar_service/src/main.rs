@@ -1,23 +1,15 @@
 extern crate notify;
 
 use notify::{RecommendedWatcher, Watcher, RecursiveMode};
-use std::sync::mpsc::channel;
+use std::{error::Error, path::PathBuf, sync::mpsc::channel};
 use std::time::Duration;
 use std::path::Path;
 use std::fs;
+use std::fs::File;
 use wfd::{DialogParams, FOS_PICKFOLDERS};
 
-fn watch() -> notify::Result<()> {
-
-    //TODO: save chosen path for future starts
-    let params = DialogParams {
-        options: FOS_PICKFOLDERS,
-        .. Default::default()
-    };
-
-    let dialog_result = wfd::open_dialog(params);
-    let mut working_dir = dialog_result.unwrap().selected_file_path;
-    
+fn watch(dir: PathBuf) -> notify::Result<()> {
+    let mut working_dir = dir;
     working_dir.push("_retail_");
     working_dir.push("WTF");
     working_dir.push("Account");
@@ -103,7 +95,41 @@ fn handle_event(path: &Path) {
 }
 
 fn main() {
-    if let Err(e) = watch() {
+    
+    let working_dir: PathBuf = get_working_dir();
+
+    if let Err(e) = watch(working_dir) {
         println!("error: {:?}", e)
     }
+}
+
+fn check_file() -> Result<(), Box<dyn Error>> {
+  let file = PathBuf::from("./gankstars.txt");
+  let _file = File::open(file)?;
+
+  Ok(())
+}
+
+fn get_working_dir() -> PathBuf {
+  let file_exists = check_file();
+  if file_exists.is_ok() {
+    let data = fs::read_to_string("./gankstars.txt").expect("Unable to read file");
+    println!("{}", data);
+    return PathBuf::from(data);
+  }else {
+    let params = DialogParams {
+        options: FOS_PICKFOLDERS,
+        .. Default::default()
+    };
+
+    let dialog_result = wfd::open_dialog(params);
+    let working_dir = dialog_result.unwrap().selected_file_path;
+    save_working_dir(&working_dir);
+    return working_dir;
+  };
+}
+
+fn save_working_dir(working_dir: &PathBuf) {
+  let data = working_dir.to_str().unwrap();
+  fs::write("./gankstars.txt", data).expect("Unable to write file");
 }
