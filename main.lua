@@ -84,9 +84,7 @@ function Gankstars:Initialize()
 
   GankstarsFrame.DebugValue:SetText(tostring(Gankstars.Debug))
   GankstarsFrame.TokenInput:SetText(Gankstars.AddonToken)
-
-  print("deathcount" .. Gankstars.DeathCount)
-
+  
   if Gankstars.Debug then
     GankstarsFrame:Show()
   end
