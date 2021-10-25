@@ -39,7 +39,7 @@ end
 
 function Gankstars:GetAverageItemLevel()
   avgItemLevel, avgItemLevelEquipped, avgItemLevelPvp = GetAverageItemLevel()
-  return avgItemLevel
+  return avgItemLevelEquipped
 end
 
 function Gankstars:UpdateAverageItemLevel()
@@ -66,6 +66,10 @@ function Gankstars:Initialize()
     GankstarsDB["AddonToken"] = ""
   end
 
+  if GankstarsCharacterDB["CurrentKey"] == nil then
+    GankstarsCharacterDB["CurrentKey"] = {}
+  end
+
   if GankstarsCharacterDB["AverageItemLevel"] == nil or GankstarsCharacterDB["AverageItemLevel"] == 0 then
     GankstarsCharacterDB["AverageItemLevel"] = Gankstars:GetAverageItemLevel()
   end
@@ -81,22 +85,51 @@ function Gankstars:Initialize()
   -- GankstarsCharacterDb values
   Gankstars.AverageItemLevel = GankstarsCharacterDB["AverageItemLevel"]
   Gankstars.DeathCount = GankstarsCharacterDB["DeathCount"]
+  Gankstars.CurrentKey = GankstarsCharacterDB["CurrentKey"]
 
   GankstarsFrame.DebugValue:SetText(tostring(Gankstars.Debug))
   GankstarsFrame.TokenInput:SetText(Gankstars.AddonToken)
   
+  Gankstars:GetCurrentKey()
+
   if Gankstars.Debug then
     GankstarsFrame:Show()
+    
   end
 end
 
 function Gankstars:deconstruct()
   Gankstars:SaveStats()
   Gankstars:SaveConfig()
+  Gankstars:SaveItems()
+end
+
+function Gankstars:GetCurrentKey()
+  local ShadowlandsKeyId = 180653
+  if C_Item.DoesItemExistByID(ShadowlandsKeyId) then
+      for bag = 1, NUM_BAG_SLOTS do
+        for slot = 0, GetContainerNumSlots(bag) do
+          if(GetContainerItemID(bag, slot) == ShadowlandsKeyId) then
+            local itemLink = GetContainerItemLink(bag, slot)
+            
+            local parts = { strsplit(':', itemLink) }
+
+            local dungeonId = tonumber(parts[3])
+            local level = tonumber(parts[4])
+    
+            local dungeonName, _, _, _, _ = C_ChallengeMode.GetMapUIInfo(dungeonId)
+            local keyInfo = {}
+            keyInfo["Level"] = level
+            keyInfo["Dungeon"] = dungeonName
+            Gankstars.CurrentKey = keyInfo
+          end
+        end
+      end
+    else
+  end
 end
 
 function Gankstars:SaveConfig()
-  print("Saving config.")
   Gankstars.AddonToken = GankstarsFrame.TokenInput:GetText()
 
   GankstarsDB = {}
@@ -106,10 +139,13 @@ end
 
 
 function Gankstars:SaveStats()
-  print("Save")
   GankstarsCharacterDB = { }
   GankstarsCharacterDB["CharacterName"] = UnitName("player");
   GankstarsCharacterDB["AverageItemLevel"] = Gankstars.AverageItemLevel
   GankstarsCharacterDB["AddonToken"] = Gankstars.AddonToken
   GankstarsCharacterDB["DeathCount"] = Gankstars.DeathCount
+end
+
+function Gankstars:SaveItems()
+  GankstarsCharacterDB["CurrentKey"] = Gankstars.CurrentKey
 end
