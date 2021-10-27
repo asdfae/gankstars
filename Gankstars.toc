@@ -1,7 +1,7 @@
 ## Interface: 90100
 ## Title: Gankstars
 ## Author: asdfae
-## Version: 0.14
+## Version: 0.15
 ## SavedVariables: GankstarsDB
 ## SavedVariablesPerCharacter: GankstarsCharacterDB
 
