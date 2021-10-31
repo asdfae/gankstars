@@ -42,6 +42,30 @@ function Gankstars:GetAverageItemLevel()
   return avgItemLevelEquipped
 end
 
+function Gankstars:GetServer()
+  return GetNormalizedRealmName()
+end
+
+function Gankstars:GetClass()
+  local playerLoc = PlayerLocation:CreateFromUnit("player")
+  className, classFilename, classID = C_PlayerInfo.GetClass(playerLoc)
+  return className
+end
+
+function Gankstars:GetCurrency()
+  info = {}
+  info["Gold"] = GetMoney()
+  info["CatalogedResarch"] = C_CurrencyInfo.GetCurrencyInfo(1931)
+  info["SoulAsh"] = C_CurrencyInfo.GetCurrencyInfo(1828)
+  info["SoulCinders"] = C_CurrencyInfo.GetCurrencyInfo(1906)
+  info["Stygia"] = C_CurrencyInfo.GetCurrencyInfo(1767)
+  info["Valor"] = C_CurrencyInfo.GetCurrencyInfo(1191)
+  info["Conquest"] = C_CurrencyInfo.GetCurrencyInfo(1602)
+  info["Honor"] = C_CurrencyInfo.GetCurrencyInfo(1792)
+  info["TowerKnowledge"] = C_CurrencyInfo.GetCurrencyInfo(1904)
+  return info
+end
+
 function Gankstars:UpdateAverageItemLevel()
   Gankstars.AverageItemLevel = Gankstars:GetAverageItemLevel()
 end
@@ -77,6 +101,22 @@ function Gankstars:Initialize()
   if GankstarsCharacterDB["DeathCount"] == nil then
     GankstarsCharacterDB["DeathCount"] = 0
   end
+
+  if GankstarsCharacterDB["Server"] == nil then
+    GankstarsCharacterDB["Server"] = Gankstars:GetServer()
+  end
+
+  if GankstarsCharacterDB["Currency"] == nil then
+    GankstarsCharacterDB["Currency"] = Gankstars:GetCurrency()
+  end
+
+  if GankstarsCharacterDB["Class"] == nil or GankstarsCharacterDB["Class"] == "" then
+    GankstarsCharacterDB["Class"] = Gankstars:GetClass()
+  end
+
+  if GankstarsCharacterDB["Level"] == nil then
+    GankstarsCharacterDB["Level"] = 0
+  end
   
   -- GankstarsDB values
   Gankstars.Debug = GankstarsDB["Debug"]
@@ -86,15 +126,20 @@ function Gankstars:Initialize()
   Gankstars.AverageItemLevel = GankstarsCharacterDB["AverageItemLevel"]
   Gankstars.DeathCount = GankstarsCharacterDB["DeathCount"]
   Gankstars.CurrentKey = GankstarsCharacterDB["CurrentKey"]
+  Gankstars.Server = GankstarsCharacterDB["Server"]
+  Gankstars.Class = GankstarsCharacterDB["Class"]
+  Gankstars.Currency = GankstarsCharacterDB["Currency"]
+  Gankstars.Level = GankstarsCharacterDB["Level"]
 
   GankstarsFrame.DebugValue:SetText(tostring(Gankstars.Debug))
   GankstarsFrame.TokenInput:SetText(Gankstars.AddonToken)
   
   Gankstars:GetCurrentKey()
+  Gankstars:GetClass()
+  Gankstars.Currency = Gankstars:GetCurrency()
 
   if Gankstars.Debug then
     GankstarsFrame:Show()
-    
   end
 end
 
@@ -102,6 +147,8 @@ function Gankstars:deconstruct()
   Gankstars:SaveStats()
   Gankstars:SaveConfig()
   Gankstars:SaveItems()
+  Gankstars:SavePlayer()
+  Gankstars:SaveCurrency()
 end
 
 function Gankstars:GetCurrentKey()
@@ -137,10 +184,16 @@ function Gankstars:SaveConfig()
   GankstarsDB["AddonToken"] = Gankstars.AddonToken 
 end
 
+function Gankstars:SavePlayer()
+  GankstarsCharacterDB["CharacterName"] = UnitName("player");
+  GankstarsCharacterDB["Level"] =  UnitLevel("player")
+  GankstarsCharacterDB["Server"] = Gankstars.Server
+  GankstarsCharacterDB["Class"] = Gankstars.Class
+end
 
 function Gankstars:SaveStats()
   GankstarsCharacterDB = { }
-  GankstarsCharacterDB["CharacterName"] = UnitName("player");
+
   GankstarsCharacterDB["AverageItemLevel"] = Gankstars.AverageItemLevel
   GankstarsCharacterDB["AddonToken"] = Gankstars.AddonToken
   GankstarsCharacterDB["DeathCount"] = Gankstars.DeathCount
@@ -148,4 +201,9 @@ end
 
 function Gankstars:SaveItems()
   GankstarsCharacterDB["CurrentKey"] = Gankstars.CurrentKey
+
+end
+
+function Gankstars:SaveCurrency()
+  GankstarsCharacterDB["Currency"] = Gankstars.Currency
 end
